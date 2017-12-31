@@ -103,10 +103,18 @@ public class ViewMenu extends javax.swing.JFrame {
                     mh.setTenMH(line);
                 }
                 if(dem == 3){
-                    mh.setSoluong(Integer.parseInt(line));
+                    try{
+                        mh.setSoluong(Integer.parseInt(line));
+                    } catch(NumberFormatException e){
+                        check = false;
+                    }
                 }
                 if(dem == 4){
-                    mh.setGiaban(Float.parseFloat(line));
+                    try{
+                        mh.setGiaban(Float.parseFloat(line));
+                    } catch(NumberFormatException e){
+                        check = false;
+                    }
                     dem = 0;
                     if(!check){
                         check = true;

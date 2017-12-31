@@ -13,30 +13,63 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Pair;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author PRINCE D. TOAD
  */
 public class ViewThongkeMathang extends javax.swing.JFrame {
+
     List<Pair<Mathang, Integer>> listSLMH;
+
     /**
      * Creates new form ViewThongkeMathang
      */
     public ViewThongkeMathang() {
         initComponents();
-        
+
         listSLMH = new ArrayList();
-        
+        readHD();
+
+        Collections.sort(listSLMH, new Comparator<Pair<Mathang, Integer>>() {
+
+            @Override
+            public int compare(Pair<Mathang, Integer> o1, Pair<Mathang, Integer> o2) {
+                if (o1.getKey().getGiaban() * o1.getValue() < o2.getKey().getGiaban() * o2.getValue()) {
+                    return 1;
+                } else if (o1.getKey().getGiaban() * o1.getValue() > o2.getKey().getGiaban() * o2.getValue()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        DefaultTableModel defaultTableModel = (DefaultTableModel) tblTK.getModel();
+        tblTK.setModel(defaultTableModel);
+
+        for (Pair<Mathang, Integer> slmh : listSLMH) {
+            int stt = 0;
+            BigDecimal bigGiaban = new BigDecimal(slmh.getKey().getGiaban()*slmh.getValue());
+            defaultTableModel.addRow(new Object[]{
+                ++stt,
+                slmh.getKey().getTenMH(),
+                slmh.getValue(),
+                bigGiaban
+            });
+        }
+
     }
 
-    
     private List<Hoadon> readHD() {
         List<Hoadon> listHD = new ArrayList<>();
         try {
@@ -45,7 +78,6 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
             String line;
             int dem = 1;
             boolean check = true;
-            Hoadon hd = new Hoadon();
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.equals("")) {
                     check = false;
@@ -62,16 +94,18 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
 //                    hd.setNgaytao(line);
                 }
                 if (dem > 3) {
-                    
+
                     // split de chia 1 chuoi thanh cac mang con
                     if (line.split("\\s").length > 1) { // mang cac mat hang
                         String[] words = line.split("\\s");
                         Mathang mh = new Mathang();
                         mh.setTenMH(words[0]);
+                        mh.setGiaban(Float.parseFloat(words[2])/Float.parseFloat(words[1]));
                         Pair<Mathang, Integer> slmh = new Pair<Mathang, Integer>(
                                 mh, Integer.parseInt(words[1]));
                         listSLMH.add(slmh);
-                        hd = new Hoadon();
+                        
+                    } else {
                         dem = 0;
                     }
                 }
@@ -87,6 +121,7 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
         }
         return listHD;
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -97,12 +132,12 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblTK = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblTK.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -110,7 +145,7 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
                 "STT", "Ten MH", "So luong ban", "Gia"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblTK);
 
         jButton1.setText("Quay lai");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -151,6 +186,6 @@ public class ViewThongkeMathang extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tblTK;
     // End of variables declaration//GEN-END:variables
 }
